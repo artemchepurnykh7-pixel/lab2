@@ -1,0 +1,5 @@
+fastapi==0.115.8
+uvicorn[standard]==0.34.0
+pymongo==4.11.1
+redis==5.2.1
+prometheus-client==0.21.1

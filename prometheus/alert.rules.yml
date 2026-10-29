@@ -1,0 +1,27 @@
+groups:
+  - name: project-tracker-alerts
+    rules:
+      - alert: ProjectTrackerApiUnavailable
+        expr: up{job="project-tracker-api"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Project Tracker API не отвечает"
+          description: "Prometheus не получает метрики API более одной минуты."
+      - alert: ProjectTrackerHighErrorRate
+        expr: sum(rate(project_tracker_http_requests_total{status=~"5.."}[5m])) / clamp_min(sum(rate(project_tracker_http_requests_total[5m])), 1) > 0.05
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Повышенная доля ответов 5xx"
+          description: "Доля серверных ошибок API превышает 5% за последние 5 минут."
+      - alert: ProjectTrackerSlowApi
+        expr: histogram_quantile(0.95, sum by (le) (rate(project_tracker_http_request_duration_seconds_bucket[5m]))) > 1
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Высокая задержка API"
+          description: "95-й перцентиль времени ответа превышает 1 секунду."
